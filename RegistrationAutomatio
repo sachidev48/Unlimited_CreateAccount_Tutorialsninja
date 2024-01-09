@@ -128,10 +128,7 @@ public class RegistrationAutomation {
 
                 System.out.println("Excel file saved successfully at: " + filePath);
 
-                // Clear form fields after creating an account
-              
-
-                // Additional code to clear remaining form fields...
+             
             }
 
         } catch (IOException e) {
