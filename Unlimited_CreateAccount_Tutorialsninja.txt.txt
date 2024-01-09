@@ -1,0 +1,144 @@
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.Test;
+import com.github.javafaker.Faker;
+
+import java.time.Duration;
+
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+public class RegistrationAutomation {
+
+    @Test
+    public void test() throws InterruptedException {
+        // Set up WebDriver
+        WebDriverManager.chromedriver().setup();
+        WebDriver driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+        driver.manage().window().maximize();
+        driver.get("https://tutorialsninja.com/demo/");
+        driver.findElement(By.xpath("//span[normalize-space()='My Account']")).click();
+        driver.findElement(By.xpath("//a[normalize-space()='Register']")).click();
+
+        // Create a workbook and sheet for Excel
+        String filePath = "C:\\Users\\Lucky\\OneDrive\\Desktop\\naresh\\file1.xlsx";
+
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("UserData");
+
+            // Create header row
+            Row headerRow = sheet.createRow(0);
+            headerRow.createCell(0).setCellValue("First Name");
+            headerRow.createCell(1).setCellValue("Last Name");
+            headerRow.createCell(2).setCellValue("Email");
+            headerRow.createCell(3).setCellValue("Telephone");
+            headerRow.createCell(4).setCellValue("Password");
+
+            // Generate random data using Faker and create multiple sets
+            Faker faker = new Faker();
+            int numOfSets = 100; // Specify the number of sets you want
+            for (int set = 1; set <= numOfSets; set++) {
+                Row dataRow = sheet.createRow(set);
+
+                // Re-locate elements on the registration page after navigation
+                WebElement firstName = driver.findElement(By.xpath("//input[@id='input-firstname']"));
+                WebElement lastName = driver.findElement(By.xpath("//input[@id='input-lastname']"));
+                WebElement email = driver.findElement(By.xpath("//input[@id='input-email']"));
+                WebElement telephone = driver.findElement(By.xpath("//input[@id='input-telephone']"));
+                WebElement password = driver.findElement(By.xpath("//input[@id='input-password']"));
+                WebElement confirmPassword = driver.findElement(By.xpath("//input[@id='input-confirm']"));
+
+                // Fill out the form with fresh references using Faker data
+                firstName.sendKeys(faker.name().firstName());
+                dataRow.createCell(0).setCellValue(firstName.getAttribute("value"));
+
+                lastName.sendKeys(faker.name().lastName());
+                dataRow.createCell(1).setCellValue(lastName.getAttribute("value"));
+
+                email.sendKeys(faker.internet().emailAddress());
+                dataRow.createCell(2).setCellValue(email.getAttribute("value"));
+
+                telephone.sendKeys(faker.phoneNumber().cellPhone());
+                dataRow.createCell(3).setCellValue(telephone.getAttribute("value"));
+
+                String generatedPassword = faker.internet().password();
+                password.sendKeys(generatedPassword);
+                dataRow.createCell(4).setCellValue(generatedPassword);
+
+                // Confirm Password field
+                confirmPassword.sendKeys(generatedPassword);
+
+                // Additional code for the remaining form fields...
+
+                // Move to the next page
+                
+             // ...
+
+             // Move to the next page
+             WebElement subscribeBtn = driver.findElement(By.xpath("//input[@value='0']"));
+             subscribeBtn.click();
+
+             // Updated WebDriverWait constructor for Selenium 4
+             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+             // Add explicit wait for page stability
+             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@name='agree']")));
+
+             WebElement agreeBtn = driver.findElement(By.xpath("//input[@name='agree']"));
+             agreeBtn.click();
+
+             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@value='Continue']")));
+             WebElement continueBtn = driver.findElement(By.xpath("//input[@value='Continue']"));
+             continueBtn.click();
+
+           
+
+
+                // Additional button clicks and navigation
+                driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+                driver.findElement(By.xpath("//*[@id=\"content\"]/div/div/a")).click();//2nd cnt
+                driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+                driver.findElement(By.xpath("//*[@id=\"top-links\"]/ul/li[2]/a")).click();
+                driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+                
+                driver.findElement(By.xpath("//*[@id=\"top-links\"]/ul/li[2]/ul/li[5]/a")).click();
+                
+                driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+                
+                driver.findElement(By.xpath("//span[normalize-space()='My Account']")).click();
+                driver.findElement(By.xpath("//a[normalize-space()='Register']")).click();
+                // ...
+
+                // Save the data and clear form fields
+                try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+                    workbook.write(fileOut);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                System.out.println("Excel file saved successfully at: " + filePath);
+
+                // Clear form fields after creating an account
+              
+
+                // Additional code to clear remaining form fields...
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Close the WebDriver
+        driver.quit();
+    }
+}
